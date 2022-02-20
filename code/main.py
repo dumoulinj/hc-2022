@@ -17,7 +17,8 @@ import sys
 @click.argument("infile", type=click.File("r"))
 @click.argument("outfile", type=click.File("w"))
 @click.argument("metafile", type=click.File("w"))
-def main(infile, outfile, metafile):
+@click.argument("best_solution", type=click.File("w"), required=False)
+def main(infile, outfile, metafile, best_solution):
     problem = models.Problem.parse(infile)
 
     solvers = [
