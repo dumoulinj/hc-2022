@@ -17,16 +17,20 @@ import sys
 @click.argument("infile", type=click.File("r"))
 @click.argument("outfile", type=click.File("w"))
 @click.argument("metafile", type=click.File("w"))
-@click.argument("best_solution", type=click.File("w"), required=False)
+@click.argument("best_solution", type=click.File("r"), required=False)
 def main(infile, outfile, metafile, best_solution):
     problem = models.Problem.parse(infile)
-
+    
     solvers = [
         # TODO: Add other solvers or alternative configurations here
         s.Naive(),
         s.LikesGTDislikes(),
         s.LikesGTDislikes2()
     ]
+
+    if best_solution:
+        ingredients = set(best_solution.readline().split()[1:])
+        solvers.append(s.ImproveBestSolution(ingredients))
 
     best, *others = sorted(
         [solver.solve(problem) for solver in solvers],

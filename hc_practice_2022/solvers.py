@@ -13,16 +13,52 @@ def calculate_score(problem: Problem, ingredients: set):
 
     return score
 
+def do_improve(problem: Problem, ingredients: set, likes: set, dislikes: set):
+    improved = True
+    not_added = likes - ingredients
+    while improved:
+        improved = False
+
+        crt_score = calculate_score(problem, ingredients)
+        to_add = list()
+
+        for i in not_added:
+            new_ingredients = copy(ingredients)
+            new_ingredients.add(i)
+            new_score = calculate_score(problem, new_ingredients)
+            
+            if new_score > crt_score:
+                to_add.append((i, new_score))
+        
+        if len(to_add) > 0:
+            # to_add = sorted(to_add, key=lambda x: x[1], reverse=True)
+            _i = to_add[0][0]
+            ingredients.add(_i)
+            not_added.remove(_i)
+            print(f"Added score: {to_add[0][1] - crt_score}, New score: {new_score}, remaining length: {len(to_add)}")
+            improved = True
+    
+
+    for i in dislikes:
+        if i in ingredients:
+            new_ingredients = copy(ingredients)
+            new_ingredients.remove(i)
+            if calculate_score(problem, new_ingredients) > calculate_score(problem, ingredients):
+                ingredients = new_ingredients
+    
+    return ingredients
+
 @define
 class Naive(Solver):
     def solve(self, problem: Problem):
-        liked = set()
-        disliked = set()
+        likes = set()
+        dislikes = set()
         for c in problem:
-            liked |= c.likes
-            disliked |= c.dislikes
+            likes |= c.likes
+            dislikes |= c.dislikes
 
-        ingredients = liked - disliked
+        ingredients = likes - dislikes
+
         return Solution(problem=problem, solver=self, ingredients=ingredients)
 
 @define
@@ -36,32 +72,10 @@ class LikesGTDislikes(Solver):
             dislikes.update(list(c.dislikes))
         
         ingredients = set()
-        # not_added = set()
         
         for k, v in likes.items():
             if v >= dislikes[k]:
                 ingredients.add(k)
-            # else:
-            #     not_added.add(k)
-
-        # improved = True
-        # while improved:
-        #     improved = False
-        #     not_added = problem.ingredients - ingredients
-        #     for i in not_added:
-        #         new_ingredients = copy(ingredients)
-        #         new_ingredients.add(i)
-        #         if calculate_score(problem, new_ingredients) > calculate_score(problem, ingredients):
-        #             ingredients = new_ingredients
-        #             improved = True
-            
-        #     for i in dislikes:
-        #         if i in ingredients:
-        #             new_ingredients = copy(ingredients)
-        #             new_ingredients.remove(i)
-        #             if calculate_score(problem, new_ingredients) > calculate_score(problem, ingredients):
-        #                 ingredients = new_ingredients
-        #                 improved = True
         
         return Solution(problem=problem, solver=self, ingredients=ingredients)
 
@@ -82,44 +96,23 @@ class LikesGTDislikes2(Solver):
             dislikes.update(c.dislikes)
         
         ingredients = set()
-        not_added = set()
         
         for k, v in likes_counter.items():
             if v >= dislikes_counter[k]:
                 ingredients.add(k)
-                # likes.remove(k)
-
-        improved = True
-        not_added = likes - ingredients
-        while improved:
-            improved = False
-            #print(f"{len(likes)} - {len(ingredients)}, {len(not_added)}")
-
-            crt_score = calculate_score(problem, ingredients)
-            to_add = list()
-
-            for i in not_added:
-                new_ingredients = copy(ingredients)
-                new_ingredients.add(i)
-                new_score = calculate_score(problem, new_ingredients)
-                
-                if new_score > crt_score:
-                    to_add.append((i, new_score))
             
-            if len(to_add) > 0:
-                to_add = sorted(to_add, key=lambda x: x[1], reverse=True)
-                _i = to_add[0][0]
-                ingredients.add(_i)
-                not_added.remove(_i)
-                print(f"Added score: {to_add[0][1] - crt_score}, to add length: {len(to_add)}")
-                improved = True
-            
-            # for i in dislikes_counter:
-            #     if i in ingredients:
-            #         new_ingredients = copy(ingredients)
-            #         new_ingredients.remove(i)
-            #         if calculate_score(problem, new_ingredients) > calculate_score(problem, ingredients):
-            #             ingredients = new_ingredients
-            #             improved = True
-        
+        return Solution(problem=problem, solver=self, ingredients=ingredients)
+
+@define
+class ImproveBestSolution(Solver):
+    best_solution_ingredients: set
+    def solve(self, problem: Problem):
+        likes = set()
+        dislikes = set()
+
+        for c in problem.clients:
+            likes.update(c.likes)
+            dislikes.update(c.dislikes)
+
+        ingredients = do_improve(problem, self.best_solution_ingredients, likes, dislikes)
         return Solution(problem=problem, solver=self, ingredients=ingredients)
