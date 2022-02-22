@@ -116,3 +116,33 @@ class ImproveBestSolution(Solver):
 
         ingredients = do_improve(problem, self.best_solution_ingredients, likes, dislikes)
         return Solution(problem=problem, solver=self, ingredients=ingredients)
+
+@define
+class ByClients(Solver):
+    def solve(self, problem: Problem):
+        dislikes_counter = Counter()
+
+        for c in problem.clients:
+            dislikes_counter.update(list(c.dislikes))
+        
+        clients = list()
+        for c in problem.clients:
+            nb_no = 0
+            for i in c.likes:
+                nb_no += dislikes_counter[i]
+            
+            clients.append((c, nb_no))
+        
+
+        clients = sorted(clients, key=lambda x: x[1])
+
+        ingredients = set()
+        for c in clients:
+            new_ingredients = copy(ingredients)
+
+            new_ingredients.update(c[0].likes)
+
+            if calculate_score(problem, new_ingredients) > calculate_score(problem, ingredients):
+                ingredients = new_ingredients
+
+        return Solution(problem=problem, solver=self, ingredients=ingredients)
