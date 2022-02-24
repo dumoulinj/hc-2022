@@ -1,0 +1,7 @@
+version: "1"
+
+run:
+  command: "poetry run python main-jonathan.py {infile} {outfile} {metafile} {best_solution}"
+
+paths:
+  code: "code"
