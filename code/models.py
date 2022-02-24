@@ -33,7 +33,7 @@ class Solution:
         self.score = self.calculate_score()
 
     def calculate_score(self):
-        return tools.calculate_score()
+        return tools.calculate_score(self.problem)
     
     def write(self, fh):
         fh.write(f'TODO')

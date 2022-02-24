@@ -24,7 +24,7 @@ def main(infile, outfile, metafile, best_solution):
     
     solvers = [
         # TODO: Add other solvers or alternative configurations here
-        #s.Naive()
+        s.SolverA()
     ]
 
     # if best_solution:
