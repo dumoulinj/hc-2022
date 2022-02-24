@@ -1,32 +1,39 @@
-import attr
+from attr import define, field
 
 from collections import deque
+from abc import abstractmethod
 
+import tools
 
-@attr.s
+@define
+class Solver:
+    @abstractmethod
+    def solve():
+        pass
+
+@define
 class Problem:
 
     @classmethod
     def parse(cls, infile):
+        # infile.readline()
 
         return cls()
+    
+    def get_max_score(self):
+        return 0 
 
-@attr.s
+@define
 class Solution:
-    problem = attr.ib()
-    solver = attr.ib()
-    score = attr.ib(init=False, default=0)
-    solution = attr.ib()
+    problem: Problem = field()
+    solver: Solver = field()
+    score = field(init=False, default=0)
 
-    # def __attrs_post_init__(self):
-    #     self.score = self.calculate_score()
+    def __attrs_post_init__(self):
+        self.score = self.calculate_score()
 
     def calculate_score(self):
-        score = 0
-
-        return score
-
+        return tools.calculate_score()
+    
     def write(self, fh):
-        # TODO: Write output file here
-        # fh.write("toto")
-        pass
+        fh.write(f'TODO')

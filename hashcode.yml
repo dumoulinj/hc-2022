@@ -4,4 +4,4 @@ run:
   command: "poetry run pypy main.py {infile} {outfile} {metafile} {best_solution}"
 
 paths:
-  code: "hc_practice_2022"
+  code: "code"
